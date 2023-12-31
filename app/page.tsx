@@ -1,21 +1,27 @@
-import { Button, Grid } from '@mui/material'
+"use client";
+// import { Button, Grid } from '@mui/material'
+import { Accordion, AccordionItem, Button } from '@nextui-org/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Home() {
   return (
     <>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Button variant="contained">Button 1</Button>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Button variant="contained">Button 2</Button>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Button variant="contained">Button 3</Button>
-        </Grid>
-      </Grid>
+      <Button>
+        Click me!
+      </Button>
+      <Accordion>
+        <AccordionItem key="1" aria-label="Accordion 1" title="Accordion 1">
+          1
+        </AccordionItem>
+        <AccordionItem key="2" aria-label="Accordion 2" title="Accordion 2">
+          2
+        </AccordionItem>
+        <AccordionItem key="3" aria-label="Accordion 3" title="Accordion 3">
+          3
+        </AccordionItem>
+      </Accordion>
+
       <Link href={"/view"}>
         viewへ移動するよ
       </Link>

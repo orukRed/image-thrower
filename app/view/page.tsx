@@ -3,6 +3,7 @@ export default function Page() {
     <>
       HELLO WORLD!!
       ここに画像あって、右下に画像追加ボタンがあってモーダルで開けるよ
+
     </>
   )
 }
