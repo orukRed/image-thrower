@@ -5,7 +5,8 @@ import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 config.autoAddCss = false;
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
-import { useState } from 'react';
+import { LegacyRef, MutableRefObject, useRef, useState } from 'react';
+import styles from './Component.module.css';
 
 interface image {
   partition: string,
@@ -18,9 +19,29 @@ interface image {
   user_id: number,
 };
 
-function closeModal(e: any): any {
-}
-function onChange() {
+
+const SelectImage = ({ previewSrc }: any) => {
+  if (previewSrc) {
+
+  } else {
+    return (
+      <>
+        {/* <div className='text-xl text-white bg-gray-900 shadow-lg font-bold'>
+          ファイルを選択してください
+        </div>
+        <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
+        <div className='flex justify-center items-center'>
+          <FontAwesomeIcon icon={faImage} size='10x' />
+        </div> */}
+      </>
+    )
+  }
+
+  return (
+    <div>
+      {previewSrc}
+    </div>
+  )
 }
 
 
@@ -28,15 +49,9 @@ export default function Page() {
   //useDisclosureで3つの戻り値返している
   //多分、onOpenはisOpenをtrueにして、onOpenChangeはトグル？
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const testFunction: any = () => {
-    console.log('Button was clicked!');
-    setCount(cnt => cnt + 1);
-  };
-  const selectFile = (e: any) => {
-    setSelectedFile(e.target.files[0]);
-  }
+  const [previewSrc, setPreviewSrc] = useState<string | ArrayBuffer | null>(null);
+  const fileInputRef: any = useRef(undefined);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [count, setCount] = useState(0);
   const [image, setImage] = useState<image>({
     partition: '',
@@ -49,20 +64,48 @@ export default function Page() {
     user_id: 0,
   })
 
+  const testFunction: any = () => {
+    console.log('Button was clicked!');
+    setCount(cnt => cnt + 1);
+  };
+
+  const callFileSelector = () => {
+    if (fileInputRef && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+  const selectFile = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewSrc(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
 
 
   return (
     <>
       register!!
-      <Button onPress={onOpen}>Open Modal</Button>
-      <Modal size="4xl" isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
+      {/* <Modal size="4xl" isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}> */}
+      <Modal size="4xl" isOpen={true} onOpenChange={onOpenChange} isDismissable={false}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">image throw</ModalHeader>
           <ModalBody>
-            <div className='flex justify-center items-center'>
-              <input type="file" onChange={selectFile} />
-              {selectedFile && <p>Selected file: {selectedFile.name}</p>}
-              <FontAwesomeIcon icon={faImage} size='10x' />
+            <div className={styles.checkerboard} onClick={callFileSelector}>
+              <SelectImage previewSrc={previewSrc} />
+
+
+              <div className='text-xl text-white bg-gray-900 shadow-lg font-bold'>
+                ファイルを選択してください
+              </div>
+              <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
+              <div className='flex justify-center items-center'>
+                <FontAwesomeIcon icon={faImage} size='10x' />
+              </div>
+              {previewSrc && <img src={previewSrc} alt="Preview" />}
+
             </div>
             <Input label="name" placeholder="image title" />
             <Input label="description" placeholder="image description" />
