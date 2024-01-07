@@ -20,38 +20,68 @@ interface image {
 };
 
 
-const SelectImage = ({ previewSrc }: any) => {
-  if (previewSrc) {
 
+
+const SelectImage = ({ hoge }: any) => {
+
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const fileInputRef: any = useRef(undefined);
+  const callFileSelector = () => {
+    if (fileInputRef && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+  const selectFile = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setPreviewSrc(reader.result);
+      }
+    }
+    reader.readAsDataURL(file);
+  };
+
+  if (previewSrc) {
+    return (
+      <>
+        <div className={`${styles.checkerboard} flex justify-center items-center`} onClick={callFileSelector}>
+          <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
+          <img src={previewSrc}
+            sizes='100vw'
+            width={1}
+            height={1}
+            style={{
+              width: 'auto',
+              height: 'auto',
+            }} />
+        </div >
+      </>
+    )
   } else {
     return (
       <>
-        {/* <div className='text-xl text-white bg-gray-900 shadow-lg font-bold'>
-          ファイルを選択してください
+        <div className={styles.checkerboard} onClick={callFileSelector}>
+          <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
+          <div className='text-xl text-white bg-gray-900 shadow-lg font-bold'>
+            ファイルを選択してください
+          </div>
+          <div className='flex justify-center items-center'>
+            <FontAwesomeIcon icon={faImage} size='10x' />
+          </div>
         </div>
-        <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
-        <div className='flex justify-center items-center'>
-          <FontAwesomeIcon icon={faImage} size='10x' />
-        </div> */}
       </>
     )
   }
 
-  return (
-    <div>
-      {previewSrc}
-    </div>
-  )
 }
 
 
 export default function Page() {
+
   //useDisclosureで3つの戻り値返している
   //多分、onOpenはisOpenをtrueにして、onOpenChangeはトグル？
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [previewSrc, setPreviewSrc] = useState<string | ArrayBuffer | null>(null);
-  const fileInputRef: any = useRef(undefined);
-
   const [count, setCount] = useState(0);
   const [image, setImage] = useState<image>({
     partition: '',
@@ -69,20 +99,10 @@ export default function Page() {
     setCount(cnt => cnt + 1);
   };
 
-  const callFileSelector = () => {
-    if (fileInputRef && fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+  const registerImage = () => {
+    console.log('registerImage');
+    console.log(image);
   }
-  const selectFile = (e: any) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewSrc(reader.result);
-    };
-    reader.readAsDataURL(file);
-  }
-
 
 
   return (
@@ -93,20 +113,7 @@ export default function Page() {
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">image throw</ModalHeader>
           <ModalBody>
-            <div className={styles.checkerboard} onClick={callFileSelector}>
-              <SelectImage previewSrc={previewSrc} />
-
-
-              <div className='text-xl text-white bg-gray-900 shadow-lg font-bold'>
-                ファイルを選択してください
-              </div>
-              <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
-              <div className='flex justify-center items-center'>
-                <FontAwesomeIcon icon={faImage} size='10x' />
-              </div>
-              {previewSrc && <img src={previewSrc} alt="Preview" />}
-
-            </div>
+            <SelectImage />
             <Input label="name" placeholder="image title" />
             <Input label="description" placeholder="image description" />
           </ModalBody>
@@ -115,12 +122,10 @@ export default function Page() {
               Cancel
             </Button>
             <Button color="primary"
-              onClick={() => { testFunction(); onClose(); }}
+              onClick={() => { testFunction(); registerImage(); onClose(); }}
             >
               Submit
             </Button>
-
-
 
             <div>{count}</div>
             <div>
