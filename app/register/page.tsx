@@ -7,20 +7,19 @@ config.autoAddCss = false;
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
 import { LegacyRef, MutableRefObject, useRef, useState } from 'react';
 import styles from './Component.module.css';
+import { PutItemCommand, DynamoDBClient, PutItemCommandInput } from "@aws-sdk/client-dynamodb";
+
 
 interface image {
-  partition: string,
-  sort: number,
-  created_at: Date,
-  deleted_at: Date | undefined,
+  user_id: number,
+  name: string,
   description: string,
   file_path: string,
-  name: string,
-  user_id: number,
+  ip_address: string,
+  created_at: Date,
+  updated_at: Date | undefined,
+  deleted_at: Date | undefined,
 };
-
-
-
 
 const SelectImage = ({ hoge }: any) => {
 
@@ -39,7 +38,10 @@ const SelectImage = ({ hoge }: any) => {
         setPreviewSrc(reader.result);
       }
     }
-    reader.readAsDataURL(file);
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+
   };
 
   if (previewSrc) {
@@ -48,12 +50,13 @@ const SelectImage = ({ hoge }: any) => {
         <div className={`${styles.checkerboard} flex justify-center items-center`} onClick={callFileSelector}>
           <input type="file" accept=".png, .jpg, .jpeg, .gif .webp" style={{ display: "none" }} ref={fileInputRef} onChange={selectFile} />
           <img src={previewSrc}
-            sizes='100vw'
+            sizes='10vw'
             width={1}
             height={1}
             style={{
-              width: 'auto',
-              height: 'auto',
+              width: '550px',
+              height: '550px',
+              objectFit: 'cover'
             }} />
         </div >
       </>
@@ -73,25 +76,25 @@ const SelectImage = ({ hoge }: any) => {
       </>
     )
   }
-
 }
 
 
-export default function Page() {
-
+//TODO:引数でmodalの表示を切り替える用にするとよさそう
+export default function Page({ isOpening }: { isOpening: boolean }) {
+  isOpening = true;
   //useDisclosureで3つの戻り値返している
   //多分、onOpenはisOpenをtrueにして、onOpenChangeはトグル？
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [count, setCount] = useState(0);
   const [image, setImage] = useState<image>({
-    partition: '',
-    sort: 0,
-    created_at: new Date(),
-    deleted_at: undefined,
+    user_id: 0,
+    name: '',
     description: '',
     file_path: '',
-    name: '',
-    user_id: 0,
+    ip_address: '',
+    created_at: new Date(),
+    updated_at: undefined,
+    deleted_at: undefined,
   })
 
   const testFunction: any = () => {
@@ -99,15 +102,48 @@ export default function Page() {
     setCount(cnt => cnt + 1);
   };
 
-  const registerImage = () => {
+
+  const imageData: image = {
+    user_id: 0,
+    name: 'test',
+    description: 'test',
+    file_path: 'test',
+    ip_address: 'test',
+    created_at: new Date(),
+    updated_at: undefined,
+    deleted_at: undefined,
+  }
+  const client = new DynamoDBClient({
+    region: "ap-northeast-1",
+    credentials: {
+      accessKeyId: "hoge",
+      secretAccessKey: "foo",
+    }
+  });
+  const data: PutItemCommandInput = {
+    TableName: 'dynamodb-test',
+    Item: {
+      'user_id': { N: '0' }, // Number type
+      'name': { S: 'test' }, // String type
+      'description': { S: 'test' }, // String type
+      'file_path': { S: 'test' }, // String type
+      'created_at': { S: new Date().toISOString() }, // String type  
+    }
+  }
+  const registerImage = async () => {
     console.log('registerImage');
-    console.log(image);
+    const command = new PutItemCommand(data);
+    try {
+      const result = await client.send(command);
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
 
   return (
     <>
-      register!!
       {/* <Modal size="4xl" isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}> */}
       <Modal size="4xl" isOpen={true} onOpenChange={onOpenChange} isDismissable={false}>
         <ModalContent>
@@ -122,7 +158,8 @@ export default function Page() {
               Cancel
             </Button>
             <Button color="primary"
-              onClick={() => { testFunction(); registerImage(); onClose(); }}
+              // onClick={() => { testFunction(); registerImage(); onClose(); }}
+              onClick={() => { testFunction(); registerImage(); }}
             >
               Submit
             </Button>
