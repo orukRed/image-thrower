@@ -23,5 +23,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+export let firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+// Initialize Firebase
+export function initFirebase() {
+  firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+}
 // const analytics = getAnalytics(firebaseApp);

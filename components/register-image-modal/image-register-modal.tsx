@@ -11,7 +11,7 @@ import { firebaseApp } from '@/components/firebase/client.js';
 import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
 import { getIpAddress } from '@/components/ip-address';
-import { ModalSpinner } from '@/components/ModalSpinner';
+import { ModalSpinner } from '@/components/modal-spinner';
 
 let selectedImage: string | null = null; //画像保存用の変数
 
@@ -148,6 +148,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
           if (ret) {
             onClose();
             alert('登録しました');
+            window.location.reload();
           }
         }}
         disabled={!previewSrc}
@@ -159,7 +160,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
   );
 }
 
-export default function RegisterImageModal({ isOpen, onOpenChange, onClose }: { isOpen: boolean; onOpenChange: () => void; onClose: () => void }) {
+export default function ImageRegisterModal({ isOpen, onOpenChange, onClose }: { isOpen: boolean; onOpenChange: () => void; onClose: () => void }) {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [description, setDescription] = useState<string | null>(null);
