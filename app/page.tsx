@@ -1,8 +1,5 @@
-import { firebaseApp } from '@/components/firebase/client';
-import { Accordion, AccordionItem, Button } from '@nextui-org/react';
-import Image from 'next/image';
-import Link from 'next/link';
+import LoginForm from '@/components/login-form';
 
-export default function Home() {
-  return <></>;
+export default async function Home() {
+  return <>HOME</>;
 }

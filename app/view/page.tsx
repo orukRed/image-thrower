@@ -1,4 +1,5 @@
-import { initFirebase } from '@/components/firebase/client';
+// 'use client';
+import { firebaseApp, initFirebase } from '@/components/firebase/client';
 import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
 import ShowImages from './show-images';
@@ -9,13 +10,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, useDisclosure } from '@nextui-org/react';
 import openModal from './modals';
 import Modals from './modals';
-
-export default async function view() {
-  initFirebase();
+import * as fireAuth from 'firebase/auth';
+import { redirect } from 'next/navigation';
+export default async function View() {
   const fetchDataFromFirestore = async () => {
-    const db = firestore.getFirestore();
+    // const auth = fireAuth.getAuth(firebaseApp); //初期化処理
+    // auth.updateCurrentUser(auth.currentUser);
+    const db = firestore.getFirestore(firebaseApp);
     const imageCollection = firestore.collection(db, 'images');
-    const imageSnapshot = await firestore.getDocs(imageCollection);
+    const query = firestore.query(imageCollection, firestore.orderBy('createdAt', 'desc'), firestore.limit(100));
+    const imageSnapshot = await firestore.getDocs(query);
     const imageList = imageSnapshot.docs.map((doc) => doc.data());
     return imageList;
   };
@@ -28,13 +32,17 @@ export default async function view() {
     return returnList;
   };
 
-  const imageList = await fetchDataFromFirestore();
-  const updatedImageList = await fetchImagesFromStorage(imageList);
-
-  return (
-    <>
-      <ShowImages imageList={updatedImageList} />
-      <Modals />
-    </>
-  );
+  initFirebase();
+  try {
+    const imageList = await fetchDataFromFirestore();
+    const updatedImageList = await fetchImagesFromStorage(imageList);
+    return (
+      <>
+        <ShowImages imageList={updatedImageList} />
+        <Modals />
+      </>
+    );
+  } catch (error) {
+    redirect('/login');
+  }
 }

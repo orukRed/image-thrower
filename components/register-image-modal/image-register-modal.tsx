@@ -12,6 +12,7 @@ import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
 import { getIpAddress } from '@/components/ip-address';
 import { ModalSpinner } from '@/components/modal-spinner';
+import { getDate } from '../getDate';
 
 let selectedImage: string | null = null; //画像保存用の変数
 
@@ -88,6 +89,8 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
     isPrivate: false,
   });
 
+  const [now, formattedDate] = getDate();
+  let db = firestore.getFirestore(firebaseApp);
   const registerImage = async (previewSrc: any) => {
     try {
       if (previewSrc === null) {
@@ -95,13 +98,8 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
         return;
       }
       if (name?.indexOf('/') !== -1) {
-        alert('タイトルに/は使用できません');
-        return;
+        name?.replaceAll('/', '／');
       }
-      const now = new Date();
-
-      //yyyyMMdd HH:mm:ss.SSSを取得
-      const formattedDate: string = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}`;
 
       //storageへの画像の追加を行う
       const storagePath = `images/${image.userId}_${formattedDate}`; //storageのパス
@@ -120,14 +118,15 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
       image.deletedAt = null;
 
       //データの追加
-      const db = firestore.getFirestore(firebaseApp);
       await firestore.setDoc(firestore.doc(db, 'images', `${image.userId}_${formattedDate}`), image);
-      await firestore.setDoc(firestore.doc(db, 'log', formattedDate), { message: 'registerImage' });
+      await firestore.setDoc(firestore.doc(db, 'log_image', formattedDate), { message: 'registerImage' });
 
       console.log('registered');
       return true;
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        await firestore.setDoc(firestore.doc(db, 'log_image', `${formattedDate}_image`), { message: error.message, stack: error.stack });
+      }
       alert(error)!;
       return false;
     }

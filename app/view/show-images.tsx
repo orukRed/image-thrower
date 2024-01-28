@@ -35,6 +35,11 @@ export default function showImages({ imageList }: { imageList: firestore.Documen
     setSelectedImage(image);
     onOpen();
   };
+  //imageListが空なら<></>を返却
+  if (!imageList || imageList.length === 0) {
+    return <></>;
+  }
+
   return (
     <div className='flex flex-wrap justify-center'>
       {imageList.map((image) => {
