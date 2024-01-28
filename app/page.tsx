@@ -1,12 +1,6 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import LoginForm from '@/components/login-form';
+import Head from 'next/head';
 
-export default function Home() {
-  return (
-    <>
-      <Link href={"/view"}>
-        viewへ移動するよ
-      </Link>
-    </>
-  )
+export default async function Home() {
+  return <>HOME</>;
 }

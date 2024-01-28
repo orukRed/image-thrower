@@ -38,3 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 # Docker
  docker image build -t image-thrower:latest .
  
+
+# その他
+
+セキュリティ上の懸念のため、`app/firebase/client.js`はgitからとってくるたびに新規作成すること
