@@ -1,48 +1,79 @@
-// 'use client';
+'use client';
 import { firebaseApp, initFirebase } from '@/components/firebase/client';
 import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
 import ShowImages from './show-images';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import ImageRegisterModal from '@/components/register-image-modal/image-register-modal';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, useDisclosure } from '@nextui-org/react';
+import { Button, image, useDisclosure } from '@nextui-org/react';
 import openModal from './modals';
 import Modals from './modals';
 import * as fireAuth from 'firebase/auth';
 import { redirect } from 'next/navigation';
-export default async function View() {
-  const fetchDataFromFirestore = async () => {
+
+export default function View() {
+  const fetchDataFromFirestore = () => {
     const db = firestore.getFirestore(firebaseApp);
     const imageCollection = firestore.collection(db, 'images');
-    const query = firestore.query(imageCollection, firestore.orderBy('createdAt', 'desc'), firestore.limit(100));
-    const imageSnapshot = await firestore.getDocs(query);
-    const imageList = imageSnapshot.docs.map((doc) => doc.data());
-    return imageList;
+    const query = firestore.query(imageCollection, firestore.where('isPrivate', '==', false), firestore.orderBy('createdAt', 'desc'), firestore.limit(500));
+
+    return firestore.getDocs(query).then((imageSnapshot) => {
+      const imageList = imageSnapshot.docs.map((doc) => doc.data());
+      return imageList;
+    });
   };
-  const fetchImagesFromStorage = async (imageList: firestore.DocumentData[]): Promise<firestore.DocumentData[]> => {
+
+  const fetchImagesFromStorage = (imageList: firestore.DocumentData[]): Promise<firestore.DocumentData[]> => {
     const returnList = imageList.slice();
-    for (const image of returnList) {
+    const promises = returnList.map((image) => {
       const storageRef = storage.ref(storage.getStorage(), image.filePath);
-      image.url = await storage.getDownloadURL(storageRef);
-    }
-    return returnList;
+      return storage.getDownloadURL(storageRef).then((url) => {
+        image.url = url;
+      });
+    });
+    return Promise.all(promises).then(() => returnList);
   };
 
   initFirebase();
-  try {
-    const imageList = await fetchDataFromFirestore();
-    const updatedImageList = await fetchImagesFromStorage(imageList);
+  const [imageList, setImageList] = useState<firestore.DocumentData[]>([]);
+  const [user, setUser] = useState(null);
+  const auth = fireAuth.getAuth();
+
+  useEffect(() => {
+    const unsubscribe = fireAuth.onAuthStateChanged(auth, (user: any) => {
+      setUser(user);
+      if (user) {
+        fetchDataFromFirestore().then((imageList) => {
+          fetchImagesFromStorage(imageList)
+            .then((updatedImageList) => {
+              setImageList(updatedImageList);
+            })
+            .catch((error) => {
+              console.log('NO LOGIN');
+              redirect('/login');
+            });
+        });
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [imageList]);
+
+  if (imageList.length === 0) {
     return (
       <>
-        <ShowImages imageList={updatedImageList} />
         <Modals />
       </>
     );
-  } catch (error) {
-    console.log('NO LOGIN');
-    redirect('/login');
-    // return <></>;
+  } else {
+    return (
+      <>
+        <ShowImages imageList={imageList} />
+        <Modals />
+      </>
+    );
   }
 }

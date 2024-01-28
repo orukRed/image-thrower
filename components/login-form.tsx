@@ -14,34 +14,33 @@ export default function LoginForm({}: {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isAuthing, setIsAuthing] = useState(false); //ログイン処理中のフラグ
+  const [now, formattedDate] = getDate();
+
   //ログインパスワードとemailが一致してログイン処理中のフラグ
   initFirebase();
   const router = useRouter();
-
   const authenticationUser = async (email: string, password: string) => {
+    const auth = fireAuth.getAuth(); //初期化処理
+    fireAuth.setPersistence(auth, fireAuth.browserSessionPersistence);
+    const db = firestore.getFirestore(firebaseApp);
+
     setIsAuthing(true);
     console.log('email:' + email);
     console.log('password:' + password);
 
-
-    const db = firestore.getFirestore(firebaseApp);
-    const auth = fireAuth.getAuth(); //初期化処理
-    const response = await fetch('/api/v1/login-auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: email, password: password }),
-    }).then(async (res) => {
-      return await res.json();
-    });
-    if ((await response.message) === 200) {
-      // 認証が成功した場合のみページ遷移
-      router.push('/view');
-    } else {
-      alert('パスワードが違うよ');
-      setIsAuthing(false);
-    }
+    fireAuth
+      .signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        await auth.updateCurrentUser(userCredential.user);
+        await firestore.setDoc(firestore.doc(db, 'log_login', `${formattedDate}_login success`), { message: 'logged in', email: email, password: password, ipAddress: await getIpAddress() });
+        console.log(user);
+        router.push('/view');
+      })
+      .catch(async (error) => {
+        await firestore.setDoc(firestore.doc(db, 'log_login', `${formattedDate}_login fail`), { errorStack: error.stack, errorMessage: error.message, email: email, password: password, ipAddress: await getIpAddress() });
+        console.log(await error);
+      });
   };
   initFirebase();
 

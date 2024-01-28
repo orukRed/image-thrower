@@ -42,9 +42,9 @@ export default function showImages({ imageList }: { imageList: firestore.Documen
 
   return (
     <div className='flex flex-wrap justify-center'>
-      {imageList.map((image) => {
+      {imageList.map((image, index) => {
         return (
-          <div key={image.title} className='m-4 border-2 border-gray-300 rounded-lg'>
+          <div key={index} className='m-4 border-2 border-gray-300 rounded-lg'>
             <div className='text-center p-2'>{image.title}</div>
             <img src={image.url} className='object-cover w-64 h-64 cursor-pointer' onClick={() => handleOpen(image)} />
           </div>

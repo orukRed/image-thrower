@@ -5,12 +5,9 @@ import { redirect } from 'next/navigation';
 import * as firestore from 'firebase/firestore';
 import { getIpAddress } from '@/components/ip-address';
 import router from 'next/router';
+import Head from 'next/head';
 
 export default async function Login() {
-  initFirebase();
-  const auth = fireAuth.getAuth(); //初期化処理
-  await fireAuth.setPersistence(auth, fireAuth.browserLocalPersistence);
-
   return (
     <>
       <div className='min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
