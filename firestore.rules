@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	//TODO:セキュリティ関連をもう少し強固にする。imageを登録するときは認証済み&&request.resource.dataのidが一致するとかそんな感じ。あとipAddressがnullじゃないとか。
+  
+    function isAuthenticated() {
+//      return true;
+      return request.auth != null;
+  	}
+    // imagesコレクションは認証済みのユーザーのみ読み書き可能
+    match /images/{document=**} {
+      allow read, create: if isAuthenticated();
+      allow update : if false;
+    }
+    // logコレクションは認証済みのユーザーのみ作成可能
+    match /log_image/{document=**} {
+      allow create: if isAuthenticated();
+      allow read, write: if false;
+    }
+    match /log_login/{document=**} {
+      allow create: if true;
+      allow read, write: if false;
+    }
+  }
+}
