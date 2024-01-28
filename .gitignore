@@ -37,3 +37,8 @@ next-env.d.ts
 
 #firebase
 /components/firebase/client.js
+#./firebase直下をすべて無視
+/.firebase/*
+
+
+

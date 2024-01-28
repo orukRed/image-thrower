@@ -28,7 +28,7 @@ function ImageShowModal({ image, isOpen, onClose }: { image: any; isOpen: boolea
   );
 }
 
-export default function showImages({ imageList }: { imageList: firestore.DocumentData[] }) {
+export default function ShowImages({ imageList }: { imageList: firestore.DocumentData[] }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedImage, setSelectedImage] = useState(imageList[0]);
   const handleOpen = (image: firestore.DocumentData) => {
