@@ -40,6 +40,8 @@ export default function LoginForm({}: {}) {
       .catch(async (error) => {
         await firestore.setDoc(firestore.doc(db, 'log_login', `${formattedDate}_login fail`), { errorStack: error.stack, errorMessage: error.message, email: email, password: password, ipAddress: await getIpAddress() });
         console.log(await error);
+        setIsAuthing(false);
+        alert('ログインに失敗しました。');
       });
   };
   initFirebase();
