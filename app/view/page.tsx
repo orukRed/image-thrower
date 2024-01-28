@@ -14,8 +14,6 @@ import * as fireAuth from 'firebase/auth';
 import { redirect } from 'next/navigation';
 export default async function View() {
   const fetchDataFromFirestore = async () => {
-    // const auth = fireAuth.getAuth(firebaseApp); //初期化処理
-    // auth.updateCurrentUser(auth.currentUser);
     const db = firestore.getFirestore(firebaseApp);
     const imageCollection = firestore.collection(db, 'images');
     const query = firestore.query(imageCollection, firestore.orderBy('createdAt', 'desc'), firestore.limit(100));
@@ -43,6 +41,8 @@ export default async function View() {
       </>
     );
   } catch (error) {
+    console.log('NO LOGIN');
     redirect('/login');
+    // return <></>;
   }
 }

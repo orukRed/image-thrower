@@ -1,6 +1,6 @@
 'use client';
 import { Button, Input } from '@nextui-org/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as fireAuth from 'firebase/auth';
 import { firebaseApp, initFirebase } from '@/components/firebase/client';
 import { redirect, useRouter } from 'next/navigation';
@@ -13,34 +13,34 @@ import { ModalSpinner } from './modal-spinner';
 export default function LoginForm({}: {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isAuthing, setIsAuthing] = useState(false); //ログイン処理中のフラグ
   //ログインパスワードとemailが一致してログイン処理中のフラグ
-  const [isAuthing, setIsAuthing] = useState(false);
-
+  initFirebase();
   const router = useRouter();
 
   const authenticationUser = async (email: string, password: string) => {
+    setIsAuthing(true);
     console.log('email:' + email);
     console.log('password:' + password);
-    const [now, formattedDate] = getDate();
+
 
     const db = firestore.getFirestore(firebaseApp);
     const auth = fireAuth.getAuth(); //初期化処理
-    await setPersistence(auth, browserSessionPersistence);
-    await fireAuth.setPersistence(auth, fireAuth.browserLocalPersistence);
-    setIsAuthing(true);
-
-    try {
-      const userCredential = await fireAuth.signInWithEmailAndPassword(auth, email, password);
-      console.log(userCredential.user);
-      await firestore.setDoc(firestore.doc(db, 'log_login', `${formattedDate}_login success`), { message: 'logged in', email: email, password: password, ipAddress: await getIpAddress() });
-      await auth.updateCurrentUser(userCredential.user);
+    const response = await fetch('/api/v1/login-auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    }).then(async (res) => {
+      return await res.json();
+    });
+    if ((await response.message) === 200) {
+      // 認証が成功した場合のみページ遷移
       router.push('/view');
-    } catch (error) {
-      if (error instanceof Error) {
-        await firestore.setDoc(firestore.doc(db, 'log_login', `${formattedDate}_login fail`), { errorStack: error.stack, errorMessage: error.message, email: email, password: password, ipAddress: await getIpAddress() });
-        setIsAuthing(false);
-        alert('パスワードが違うよ');
-      }
+    } else {
+      alert('パスワードが違うよ');
+      setIsAuthing(false);
     }
   };
   initFirebase();

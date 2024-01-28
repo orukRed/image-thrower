@@ -13,9 +13,9 @@ function Changelog() {
       description: ['xxxxをxxしました。', '追加の変更点1', '追加の変更点2'],
     },
     {
-      title: '2024/xx/xx',
+      title: '2024/01/28',
       version: '0.0.1',
-      description: ['xxxxをxxしたよ。', '追加の変更点1', '追加の変更点2'],
+      description: ['ベータ版公開', '基本的なログイン機能と画像の登録、取得'],
     },
   ];
 
