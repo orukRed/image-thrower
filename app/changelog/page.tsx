@@ -5,6 +5,7 @@ interface Changelog {
 }
 
 function Changelog() {
+  //ここを追加するだけで、Changelogの内容が変わる
   const returnValue: Changelog[] = [
     {
       title: '2024/xx/xx',
