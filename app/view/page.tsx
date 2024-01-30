@@ -46,34 +46,24 @@ export default function View() {
       setUser(user);
       if (user) {
         fetchDataFromFirestore().then((imageList) => {
-          fetchImagesFromStorage(imageList)
-            .then((updatedImageList) => {
-              setImageList(updatedImageList);
-            })
-            .catch((error) => {
-              console.log('NO LOGIN');
-              redirect('/login');
-            });
+          fetchImagesFromStorage(imageList).then((updatedImageList) => {
+            setImageList(updatedImageList);
+          });
         });
       }
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [imageList]);
-
+  }, []);
   if (imageList.length === 0) {
-    return (
-      <>
-        <Modals />
-      </>
-    );
-  } else {
-    return (
-      <>
-        <ShowImages imageList={imageList} />
-        <Modals />
-      </>
-    );
+    {
+    }
+    return <></>;
   }
+
+  return (
+    <>
+      <ShowImages imageList={imageList} />
+      <Modals />
+    </>
+  );
 }

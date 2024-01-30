@@ -147,6 +147,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
           if (ret) {
             onClose();
             alert('登録しました');
+            window.location.reload();
           }
         }}
         disabled={!previewSrc}
