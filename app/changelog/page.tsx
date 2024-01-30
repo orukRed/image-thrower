@@ -8,9 +8,9 @@ function Changelog() {
   //ここを追加するだけで、Changelogの内容が変わる
   const returnValue: Changelog[] = [
     {
-      title: '2024/xx/xx',
+      title: '2024/01/31',
       version: '0.0.2',
-      description: ['xxxxをxxしました', '追加の変更点1', '追加の変更点2'],
+      description: ['無限ループの解消'],
     },
     {
       title: '2024/01/28',
