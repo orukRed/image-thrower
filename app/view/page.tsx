@@ -11,20 +11,28 @@ import { Button, image, useDisclosure } from '@nextui-org/react';
 import openModal from './modals';
 import Modals from './modals';
 import * as fireAuth from 'firebase/auth';
-import { redirect } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
+import PaginationPage from './pagination';
 
 export default function View() {
   const fetchDataFromFirestore = () => {
     const db = firestore.getFirestore(firebaseApp);
     const imageCollection = firestore.collection(db, 'images');
-    const query = firestore.query(imageCollection, firestore.where('isPrivate', '==', false), firestore.orderBy('createdAt', 'desc'), firestore.limit(500));
+    const query = firestore.query(imageCollection, firestore.where('isPrivate', '==', false), firestore.orderBy('createdAt', 'desc'), firestore.limit(limit));
 
     return firestore.getDocs(query).then((imageSnapshot) => {
       const imageList = imageSnapshot.docs.map((doc) => doc.data());
       return imageList;
     });
   };
-
+  const fetchDataCountFromFirestore = () => {
+    const db = firestore.getFirestore(firebaseApp);
+    const imageCollection = firestore.collection(db, 'images');
+    const query = firestore.query(imageCollection, firestore.where('isPrivate', '==', false), firestore.orderBy('createdAt', 'desc'));
+    return firestore.getCountFromServer(query).then((count) => {
+      return count.data().count;
+    });
+  };
   const fetchImagesFromStorage = (imageList: firestore.DocumentData[]): Promise<firestore.DocumentData[]> => {
     const returnList = imageList.slice();
     const promises = returnList.map((image) => {
@@ -37,18 +45,23 @@ export default function View() {
   };
 
   initFirebase();
+  const limit = 20; //1ページに表示する画像枚数
   const [imageList, setImageList] = useState<firestore.DocumentData[]>([]);
-  const [user, setUser] = useState(null);
+  const [imageCount, setImageCount] = useState<number>(0);
+  const searchParams = useSearchParams();
+  const currentPage: number = parseInt(searchParams.get('page') || '1');
   const auth = fireAuth.getAuth();
 
   useEffect(() => {
     const unsubscribe = fireAuth.onAuthStateChanged(auth, (user: any) => {
-      setUser(user);
       if (user) {
         fetchDataFromFirestore().then((imageList) => {
           fetchImagesFromStorage(imageList).then((updatedImageList) => {
             setImageList(updatedImageList);
           });
+        });
+        fetchDataCountFromFirestore().then((count) => {
+          setImageCount(count);
         });
       }
     });
@@ -63,6 +76,9 @@ export default function View() {
   return (
     <>
       <ShowImages imageList={imageList} />
+      <div className='flex justify-center'>
+        <PaginationPage imageCount={imageCount} imageLimit={limit} currentPage={currentPage} />
+      </div>
       <Modals />
     </>
   );
