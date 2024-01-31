@@ -13,6 +13,7 @@ import * as storage from 'firebase/storage';
 import { getIpAddress } from '@/components/ip-address';
 import { ModalSpinner } from '@/components/modal-spinner';
 import { getDate } from '../getDate';
+import * as fireAuth from 'firebase/auth';
 
 let selectedImage: string | null = null; //画像保存用の変数
 
@@ -87,6 +88,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
     updatedAt: null,
     deletedAt: null,
     isPrivate: false,
+    uid: '',
   });
 
   const [now, formattedDate] = getDate();
@@ -100,6 +102,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
       if (name?.indexOf('/') !== -1) {
         name?.replaceAll('/', '／');
       }
+      const auth = fireAuth.getAuth();
 
       //storageへの画像の追加を行う
       const storagePath = `images/${image.userId}_${formattedDate}`; //storageのパス
@@ -116,6 +119,7 @@ function RegisterButton({ setIsLoading, onClose, previewSrc, name, description }
       image.createdAt = now;
       image.updatedAt = null;
       image.deletedAt = null;
+      image.uid = auth.currentUser?.uid;
 
       //データの追加
       await firestore.setDoc(firestore.doc(db, 'images', `${image.userId}_${formattedDate}`), image);

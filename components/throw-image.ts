@@ -10,4 +10,5 @@ interface ThrowImage {
   deletedAt: Date | null;
   isPrivate: boolean;
   url?: string[];//storageから取得した画像のurl
+  uid: string | undefined
 }
