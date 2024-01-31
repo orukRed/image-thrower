@@ -1,10 +1,9 @@
 export const getIpAddress = async () => {
   try {
-    const res = await fetch('https://ipinfo.io/ip');
-    const data = await res.json();
-    return data.ip;
+    const response = await fetch("https://ipapi.co/json/")
+    const data = await response.json()
+    return await data.ip
   } catch (error) {
-    console.log(error);
     return "";
   }
 }
