@@ -3,18 +3,30 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDi
 import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
 import React, { useState } from 'react';
+import NextImage from 'next/image';
+import Image from 'next/image';
 
 function ImageShowModal({ image, isOpen, onClose }: { image: any; isOpen: boolean; onClose: () => void }) {
+  console.log(image.createdAt.toDate());
+  const date = image.createdAt.toDate();
+  const year = date.getFullYear();
+  const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are 0-based in JavaScript
+  const day = ('0' + date.getDate()).slice(-2);
+  const hours = ('0' + date.getHours()).slice(-2);
+  const minutes = ('0' + date.getMinutes()).slice(-2);
+  const seconds = ('0' + date.getSeconds()).slice(-2);
+  const timestamp = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior='inside' className=''>
         <ModalContent>
           <ModalHeader>
             <div className='font-bold'>{image.title}</div>
-            <div className='ml-4 text-gray-500'>{image.userId}</div>
+            <div className='ml-4 text-gray-500'>{timestamp}</div>
           </ModalHeader>
-          <ModalBody>
-            <img src={image.url} className='w-full h-auto' />
+          <ModalBody className=''>
+            <img src={image.url} className='max-w-[80vh] h-auto' />
             <div className=''>{image.description}</div>
           </ModalBody>
           <ModalFooter>
