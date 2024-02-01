@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 config.autoAddCss = false;
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, Textarea, useDisclosure } from '@nextui-org/react';
 import { Dispatch, LegacyRef, MutableRefObject, SetStateAction, useRef, useState } from 'react';
-import styles from './Component.module.css';
+import styles from './component.module.css';
 import { firebaseApp } from '@/components/firebase/client.js';
 import * as firestore from 'firebase/firestore';
 import * as storage from 'firebase/storage';
