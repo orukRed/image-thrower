@@ -8,6 +8,11 @@ function Changelog() {
   //ここを追加するだけで、Changelogの内容が変わる
   const returnValue: Changelog[] = [
     {
+      title: '2024/02/01',
+      version: '0.0.3',
+      description: ['モーダルでの画像の表示のされ方変更', 'モーダルで表示するときに画像投稿日を追加'],
+    },
+    {
       title: '2024/01/31',
       version: '0.0.2',
       description: ['無限ループの解消'],
