@@ -7,7 +7,6 @@ import NextImage from 'next/image';
 import Image from 'next/image';
 
 function ImageShowModal({ image, isOpen, onClose }: { image: any; isOpen: boolean; onClose: () => void }) {
-  console.log(image.createdAt.toDate());
   const date = image.createdAt.toDate();
   const year = date.getFullYear();
   const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are 0-based in JavaScript
